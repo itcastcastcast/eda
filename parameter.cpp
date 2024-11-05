@@ -10,7 +10,7 @@ void mkconfig()
     cfg.bound=20000; //初始bound
     cfg.deltabound=10000;
     cfg.deltaexceed=100;
-    cfg.maxbound=800000;
+    cfg.maxbound=60000;
 }
 void initialized()
 {

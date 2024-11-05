@@ -190,11 +190,11 @@ void clearall()
         for (auto& cluster : entry.second->clusters) {
             delete cluster;  // 手动释放 Cluster* 指向的内存
         }
-        delete entry.second;  // 释放 Block* 指向的内存
+        entry.second->clusters.clear();
     }
 
     // 清空 map
-    blocks.clear();
+    
     removed_nodes.clear();
     var_clusters.clear(); //有问题，哪里来的
 }
@@ -228,6 +228,12 @@ void clearall()
            
         while(true)
         {
+            if(K==5000)
+            {
+                cout<<"K==5000"<<endl;
+                cout<<bound<<endl;
+                std::cin.get(); // 等待用户输入，暂停程序
+            }
             if(bound>cfg.maxbound)
             {
              K=updateK(K,1);
@@ -237,6 +243,7 @@ void clearall()
             auto j=removed_nodes.begin();
             {
                 cout<<removed_nodes.size()<<endl;
+                
                 while(j!=removed_nodes.end())
                 {
                     pair<int,int>c;
@@ -244,17 +251,47 @@ void clearall()
                     c.second=(*j)->block_y;
                     Block*block=blocks[c];
                     vector<Cluster*>&cluster=block->clusters;
-                    if(cluster[(*j)->cluster_id]->members.size()<constraint.max_fanout)
-                    {
-                        double distance = fabs((*j)->x - cluster[(*j)->cluster_id]->center.x) + fabs((*j)->y - cluster[(*j)->cluster_id]->center.y);
+                    double distance = fabs((*j)->x - cluster[(*j)->cluster_id]->center.x) + fabs((*j)->y - cluster[(*j)->cluster_id]->center.y);
                         
-                        if(distance<bound)
+                    if(distance<bound)
+                    {
+                        if(cluster[(*j)->cluster_id]->members.size()<constraint.max_fanout)
                         {
                         cluster[(*j)->cluster_id]->members.push_back(*j);
                         j=removed_nodes.erase(j);
                         cout<<removed_nodes.size()<<endl;
                         continue;
                         }
+                        else {
+    double min_distance = numeric_limits<double>::max();
+    Cluster* best_cluster = nullptr;
+
+    // 遍历所有的 block
+    for (auto& entry : blocks) {
+         double blockdistance = abs((*j)->block_x - entry.first.first) + abs((*j)->block_y - entry.first.second);
+            if (blockdistance < 2) {
+        Block* other_block = entry.second;
+        // 判断 block 的 x 和 y 与 j 点的 x 和 y 的绝对值的最小距离
+        for (auto& cluster : other_block->clusters) {
+                // 搜索找到距离小于 bound 的所有点中 fanout 最小的
+                if (distance < bound && cluster->members.size() < constraint.max_fanout) {
+                    if (distance < min_distance) {
+                        min_distance = distance;
+                        best_cluster = cluster;
+                    }
+                }
+            }
+        }
+    }
+
+    // 如果找到合适的 cluster，则将点加入到该 cluster 中
+    if (best_cluster != nullptr) {
+        best_cluster->members.push_back(*j);
+        j = removed_nodes.erase(j);
+        cout << removed_nodes.size() << endl;
+        continue;
+    }
+}
                     }
                    j++;
                 }
@@ -329,11 +366,14 @@ void clearall()
                 }
 
                 flag=true;
+                cout<<flag<<endl;
                 break;
             }
-            bound=updatebound(bound,factor);
         }
+        bound=updatebound(bound,factor);
     }
+    cout<<"Maybe it's last"<<" "<<K<<endl;
+    cout<<constraint.max_fanout<<endl;
     if(flag)
     break;
     K=updateK(K,1);

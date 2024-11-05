@@ -16,8 +16,8 @@ vector<Block*>searchorder;
 
 
 int main(){
-    string def_filename = "cts_problems/case9/problem.def";
-    string constraints_filename = "cts_problems/case9/constraints.txt";
+    string def_filename = "cts_problems/case5/problem.def";
+    string constraints_filename = "cts_problems/case5/constraints.txt";
     //string output_filename = "output.def";
     readConstraints(constraints_filename);
     readDEF(def_filename);
@@ -45,6 +45,9 @@ int main(){
     }*/
      cout<<dieArea.l<<" "<<dieArea.w<<endl;
      cout<<clk->x<<" "<<clk->y<<endl;
-     iterartivecluster(cfg.K,cfg.deltaexceed);
+     cout<<"guhdkbnuk"<<endl;
+     iterartivecluster(2000,cfg.deltaexceed);
+     //meancluster(5000,80000);
+     
      //getorder();
 }
