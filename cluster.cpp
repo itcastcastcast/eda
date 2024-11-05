@@ -222,7 +222,6 @@ void clearall()
             
             if(t>cfg.maxbound)
             {
-                K=updateK(K,1);
                 clearall();
                 continue;
             }
@@ -230,7 +229,11 @@ void clearall()
         while(true)
         {
             if(bound>cfg.maxbound)
+            {
+             K=updateK(K,1);
+                clearall();   
             break;
+            }
             auto j=removed_nodes.begin();
             {
                 cout<<removed_nodes.size()<<endl;
