@@ -12,8 +12,37 @@ ComponentSize ffSize;
 ComponentSize bufSize;
 map<pair<int, int>, Block*> blocks;
 vector<Block*>searchorder;
+//验证cluster 成功
+bool areAllNodesClustered() {
+    // 遍历所有的块
+    for(auto node:FFs){
+         bool found = false;
+    for (const auto& entry : blocks) {
+        const Block* block = entry.second;
 
+        // 遍历块中的所有节点
+           
 
+            // 遍历块中的所有聚类
+            for (const auto& cluster : block->clusters) {
+                // 检查节点是否在聚类中
+                if (std::find(cluster->members.begin(), cluster->members.end(), node) != cluster->members.end()) {
+                    found = true;
+                    break;
+                }
+            }
+                 if(found==true)
+                  break;
+    }
+     // 如果节点不在任何聚类中，返回 false
+            if (!found) {
+                return false;
+            }
+    }
+
+    // 所有节点都在某个聚类中，返回 true
+    return true;
+}
 
 int main(){
     string def_filename = "cts_problems/case5/problem.def";
@@ -48,6 +77,16 @@ int main(){
      cout<<"guhdkbnuk"<<endl;
      iterartivecluster(2000,cfg.deltaexceed);
      //meancluster(5000,80000);
-     
-     //getorder();
+    // 初始化或加载你的数据
+    // ...
+
+    // 检查是否所有的 Node 都被分配到了某个 Cluster 中
+    if (areAllNodesClustered()) {
+        cout << "All nodes are clustered." << endl;
+    } else {
+        cout << "Some nodes are not clustered." << endl;
+    }
+    //getorder();
+    return 0;
 }
+     
