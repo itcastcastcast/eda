@@ -1,5 +1,5 @@
 #include "common.h"
-void findthelongest();
+#include "newcommon.h"
 bool checkdump();
 bool cheknearest();
 bool checkfanout(DriverNode driver,double x,double y);

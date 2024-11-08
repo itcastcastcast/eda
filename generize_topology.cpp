@@ -37,7 +37,7 @@ bool cmp(Block* a,Block* b)
 {
     return ManhattonDistance(clk->x,clk->y,getcenterx(a),getcentery(a),0.0,0.0,0.0,0.0)>ManhattonDistance(clk->x,clk->y,getcenterx(b),getcentery(b),0.0,0.0,0.0,0.0);
 }
-void testdist(Block*b)
+void testdist(NewBlock*b)
 {
     cout<<b->coordinates.first<<" "<<b->coordinates.second<<endl;
     //cout<<clk->x<<" "<<clk->y<<endl;
@@ -45,12 +45,14 @@ void testdist(Block*b)
     //cout<<getcentery(b)<<endl;
     //cout<<ManhattonDistance(clk->x,clk->y,getcenterx(b),getcentery(b),0.0,0.0,0.0,0.0)<<endl;
 }
+//这里我改变主意了，直接取中间作为最大值，getorder需要，但是最远的dist是不需要的
+//也就是下面的不需要
 void getorder()
 {
    int x=clk->x;
    int y=clk->y;
    searchorder.clear();
-    for(auto i=blocks.begin();i!=blocks.end();i++)
+    for(auto i=blocks2.begin();i!=blocks2.end();i++)
     {
          searchorder.push_back(i->second);
     }
@@ -62,25 +64,55 @@ void getorder()
         testdist(i);
     }
 }
-//取出2个，算出最远dist
-double getfarestdist() 
+
+void construct(Node*tmp1,Node*tmp2)
 {
-    double maxdist=0;
-    int max_b=0; //哪个blcok优先;
-    int max_id;//block中的哪个cluster优先；
-    for(int i=0;i<2;i++)
+    double RC=rc(tmp1,tmp2);
+    //delay=2*0.69*RC/n+1 + n*bufferdelay
+    int n=0;
+    double tmin=sqrt(2*0.69*RC*constraint.buffer_delay)/(2*0.69*2);
+    double deltax=0;
+    double deltay=0;
+    if(tmin<cfg.portion*constraint.max_net_rc)
     {
-        auto&a=searchorder[i];
-        //我已经投入很多聚类了，距离中心的距离一定不会太远
-        for(auto j:a->clusters)
+        n=(int)(sqrt(2*0.69*RC/constraint.buffer_delay))-1;
+    }
+    else
+    {
+        n=RC/(cfg.portion*constraint.max_net_rc);
+    }
+    deltax=(tmp2->x-tmp1->x)/(n+1);
+    deltay=(tmp2->y-tmp1->y)/(n+1);
+    for(int i=1;i<=n;i++)
+    {
+       double x=tmp1->x+i*deltax;
+       double y=tmp1->y+i*deltay;
+    DriverNode*p=findgoodarea(x,y);
+    BUF2.push_back(p);
+    }
+}
+//对两个block进行特殊处理
+void construct(NewBlock*block,int type)
+{
+    if(type==1)
+    {
+        
+    }
+    else
+    {
+        for(auto i:BUF2)
         {
-            double dist=ManhattonDistance(clk->x,clk->y,j->center.x,j->center.y,0.0,0.0,0.0,0.0);
-            if(dist>maxdist)
-            {
-                maxdist=dist;
-                max_b=i;
-            }
+            
         }
     }
-    return maxdist;                                                                                                                                                   
 }
+void ConstructInOrder()
+{
+    int i=0;
+    for(auto block:searchorder)
+    {
+        i++;
+        construct(block,i<=1);
+    }
+}
+

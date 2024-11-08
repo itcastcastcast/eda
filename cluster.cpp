@@ -1,6 +1,6 @@
 #include "cluster.h"
 //l w k之类的东西都是可以动态调整的
-
+extern double calculateDistance(const Node* node, const Cluster* cluster);
 vector<Node*> removed_nodes; // 存储被移除的节点
 vector<Cluster*>var_clusters;
 void divideDieAreaIntoBlocks() {
@@ -263,22 +263,20 @@ void clearall()
                         continue;
                         }
                         else {
-    double min_distance = numeric_limits<double>::max();
-    Cluster* best_cluster = nullptr;
+                        double dist = 0;
+                        Cluster* best_cluster = nullptr;
 
-    // 遍历所有的 block
-    for (auto& entry : blocks) {
-         double blockdistance = abs((*j)->block_x - entry.first.first) + abs((*j)->block_y - entry.first.second);
-            if (blockdistance < 2) {
-        Block* other_block = entry.second;
-        // 判断 block 的 x 和 y 与 j 点的 x 和 y 的绝对值的最小距离
-        for (auto& cluster : other_block->clusters) {
-                // 搜索找到距离小于 bound 的所有点中 fanout 最小的
-                if (distance < bound && cluster->members.size() < constraint.max_fanout) {
-                    if (distance < min_distance) {
-                        min_distance = distance;
-                        best_cluster = cluster;
-                    }
+                        // 遍历所有的 block
+                        for (auto& entry : blocks) {
+                            double blockdistance = abs((*j)->block_x - entry.first.first) + abs((*j)->block_y - entry.first.second);
+                                if (blockdistance < 2) {
+                            Block* other_block = entry.second;
+                            // 判断 block 的 x 和 y 与 j 点的 x 和 y 的绝对值的最小距离
+                            for (auto& cluster : other_block->clusters) {
+                                    // 搜索找到距离小于 bound 的所有点中 fanout 最小的
+                                    dist=calculateDistance(*j,cluster);
+                                    if (dist < bound && cluster->members.size() < constraint.max_fanout) {
+                                            best_cluster = cluster;
                 }
             }
         }

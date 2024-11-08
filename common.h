@@ -13,6 +13,7 @@
 #include <set>
 #include<map>
 #include <memory>
+#include<algorithm>
 
 using namespace std;
 
@@ -78,12 +79,17 @@ struct Cluster {
 
 struct configurable{
     int K;
-    double bound;
+    double bound;  //bound初始值
     int l;
     int w;
     int deltabound;  //bound如何增加
     int deltaexceed; //exceed如何增加 
     double maxbound;
+    double upperbound;  //delay需要的下限
+    double lowerbound;  //delay需要的上限
+    int hk;
+    double deltaarea;
+    double portion;
 };
 
 class Block {
@@ -102,7 +108,7 @@ struct DriverNode : public Node {
 //extern std::vector<Cluster*> clusters; // 用于存储聚类
 
 extern map<pair<int, int>, Block*> blocks;
-extern vector<Block*>searchorder;
+
 // 全局变量
 extern std::vector<Node*> FFs;
 extern std::vector<Node*> buffers;
@@ -117,5 +123,7 @@ extern double ManhattonDistance(double x1,double y1,double x2,double y2,double x
 extern double rc(double x1,double y1,double x2,double y2,double xsize1,double xsize2,double ysize1,double ysize2);
 extern Node* initBuffer(double x, double y, double width, double height);
 extern void getorder();
-
+extern double rc(Node *tmp1, Node*tmp2);
+extern double ManhattonDistance(Node *tmp1,Node*tmp2);
+extern double delay(Node*tmp1,Node*tmp2);
 #endif // COMMON_H

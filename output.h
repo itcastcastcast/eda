@@ -1,2 +1,3 @@
 #include "common.h"
-void readConstraints(const string& filename);
+#include "newcommon.h"
+void writeDEF(const string& filename);

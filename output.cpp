@@ -1,6 +1,14 @@
 #include "output.h"
 // 生成输出 DEF 文件
 void writeDEF(const string& filename) {
+    for(auto buffer:BUF1)
+    {
+        buffers.push_back((Node*)buffer);
+    }
+    for(auto buffer:BUF2)
+    {
+        buffers.push_back((Node*)buffer);
+    }
     ofstream outfile(filename);
     // 写入头部信息
     outfile << "UNITS DISTANCE MICRONS 1000 ;\n";
