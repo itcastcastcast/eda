@@ -33,7 +33,11 @@ void divideIntoBlocks()
    dieArea2.ymin=dieArea.ymin;
    dieArea2.ymax=dieArea.ymax;
    dieArea2.w=int(dieArea.xmax/(cfg.bound))+1;
+   cout<<dieArea2.w<<endl;
+   char a=cin.get();
    dieArea2.l=int(dieArea.ymax/(cfg.bound))+1;
+   cout<<dieArea2.l<<endl;
+   char a=cin.get();
    dieArea2.block_height=dieArea2.ymax/dieArea2.l;
    dieArea2.block_width=dieArea2.xmax/dieArea2.w;
     for(auto member:candidates)
@@ -51,54 +55,44 @@ void divideIntoBlocks()
     }
 }
 //不用删除new的部分
-void clearclusters()
+void clearclusters(vector<Cluster*>&clusters)
 {
-    for(auto entry:blocks2)
+    clusters.clear();
+}
+void clearcandidates(vector<Node*>&candidates)
+{
+    candidates.clear();
+}
+void updatecandidates(vector<Cluster*>&clusters,vector<Node*>&nodes,int block_x,int block_y)
+{
+    clearcandidates(nodes);
+    for(auto cluster:clusters)
     {
-        entry.second->clusters.clear();
+    if(cluster->members.size()==0)
+    {
+        continue;
+    }
+    else if(cluster->members.size()==1)
+    {
+        candidates.push_back(cluster->members[0]);
+    }
+    else
+    {
+        //还没写，找到一个合法的好地方
+        //这里面要用init buffer
+        //简化吧，强制在blocks1中找
+        Node *p=findgoodarea(cluster,block_x,block_y);
+        addnodes(p);
+        candidates.push_back(p);
+        BUF1.push_back((DriverNode*)p);
+    }
     }
 }
-void clearcandidates()
-{
-    for(auto entry:blocks2)
-    {
-        entry.second->candidates.clear();
-    }
-}
-void updatecandidates()
-{
-    clearcandidates();
-    for(auto entry:blocks2)
-    {
-        entry.second->candidates.clear();
-        for(auto cluster:entry.second->clusters)
-        {
-            if(cluster->members.size()==0)
-            {
-                continue;
-            }
-            else if(cluster->members.size()==1)
-            {
-                candidates.push_back(cluster->members[0]);
-            }
-            else
-            {
-                //还没写，找到一个合法的好地方
-                //这里面要用init buffer
-                //简化吧，强制在blocks1中找
-                Node *p=findgoodarea(cluster,entry.first.first,entry.first.second);
-                addnodes(p);
-                candidates.push_back(p);
-                BUF1.push_back((DriverNode*)p);
-            }
-        }
-    }
-}
-
-void updateclusters()
+//TODO 暂时什么都不判断 直接1个点聚类
+void updateclusters(vector<Cluster*>&clusters,vector<Node*>&nodes)
 {
     //这里要判断各种条件,并且聚类
-    clearclusters();
+    clearclusters(clusters);
     
 }
 
@@ -123,7 +117,7 @@ void updatetopnodes()
                 //还没写，找到一个合法的好地方
                 //这里面要用init buffer
                 //简化吧，强制在blocks1中找
-                Node *p=findgoodarea(cluster,entry.first.first,entry.first.second);
+                Node *p=findgoodarea(cluster,block_x,block_y);
                 candidates.push_back(p);
                 BUF1.push_back((DriverNode*)p);
             }
@@ -142,11 +136,13 @@ void highlevelcluster()
    
     for(auto entry:blocks2)
     {
-       updateclusters();
-       while(blocks2[entry.first]->clusters.size()>cfg.hk)
+       updateclusters(entry.second->clusters,entry.second->candidates);
+       while(blocks2[entry.first]->clusters.size()>1)
        {
-           updatecandidates();
-           updateclusters();
+            cout<<"if you get this , maybe something wrong"<<endl;
+            char p=cin.get();
+           updatecandidates(entry.second->clusters,entry.second->candidates,entry.first.first,entry.first.second);
+           updateclusters(entry.second->clusters,entry.second->candidates,entry.first.first,entry.first.second);
        }
        updatetopnodes();
     }

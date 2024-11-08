@@ -14,6 +14,7 @@
 #include<map>
 #include <memory>
 #include<algorithm>
+#include<cassert>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ struct Node {
     int block_x;            // 所属块的横坐标
     int block_y;            // 所属块的纵坐标
     int cluster_id;         // 所属聚类的 ID
+    bool updelay;  //已经updatedelay了吗？
 };
 
 struct Constraint {
@@ -85,11 +87,10 @@ struct configurable{
     int deltabound;  //bound如何增加
     int deltaexceed; //exceed如何增加 
     double maxbound;
-    double upperbound;  //delay需要的下限
-    double lowerbound;  //delay需要的上限
     int hk;
     double deltaarea;
     double portion;
+    double ideal;      //理想距离
 };
 
 class Block {

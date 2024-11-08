@@ -69,6 +69,7 @@ void readDEF(const string& filename) {
             clock->rc = 0.0;
             clock->fanout = 0;
             clock->children = {};
+            clock->updelay=1;  //确实已经update delay了
             clk=(Node*)clock;
         }
         else if (token == "COMPONENTS") {
@@ -91,7 +92,7 @@ void readDEF(const string& filename) {
                 istringstream posStream(line);
                 posStream >> temp >> x >> y;
                 if (type == "FF") {
-                    FFs.push_back(new Node{ name, type, x, y, ffSize.width, ffSize.height, {}, nullptr, 0.0 ,0 ,0 ,0 });
+                    FFs.push_back(new Node{ name, type, x, y, ffSize.width, ffSize.height, {}, nullptr, 0.0 ,0 ,0 ,0 ,0});
                 }
             }
         }

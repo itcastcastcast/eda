@@ -2,6 +2,7 @@
 #define NEWCOMMON
 #include "common.h"
 //别忘了更新父子关系
+//特意向老师确认了，我感觉老师的意思是max_rc/max_fanout已经足够大了，所以不需要考虑这个问题
 struct NewBlock
 {
     vector<Node*>topnodes; //最上层的Node 数量需要比较少(与fanout对应) 能够直接连接到BUF
@@ -28,5 +29,7 @@ extern Node* findgoodarea(Cluster*cluster,int Block_x,int Block_y);
 extern DieArea dieArea2;
 extern void addnodes(Node*node);
 extern vector<NewBlock*>searchorder;
-DriverNode *findgoodarea(double x,double y);
+extern DriverNode *findgoodarea(double x,double y);  //这里就是直接找可以符合的+偏离最小
+extern double computedelay(NewBlock*block);
+//后面adjust可以调整：牺牲overlap 优化最大和最小latency之差
 #endif

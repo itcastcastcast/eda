@@ -1,13 +1,24 @@
 #include "generize_topology.h"
+//在这下面定义的全局函数全都不用在main中用但是要在这里用
+Node*additonnode;//没有加进BUF2，这个是为了备用，一般不用，只有fanout全部超了才用
+
 //找到最远的节点，以此作为衡量的标准
 //这里问了老师说可以认为clk在左边的中心，如果不能这样的话，需要对聚类的结果排序，
 //但是由于可以认为clk在左边的中心，所以不需要排序，直接按照block来算
 //但是我还是保守了一点，假设不是在中间
+//这是为了选出最优的cases
+vector<pair<Node*,pair<int,int>>>cases1;    //延迟可以接受
+vector<pair<Node*,pair<int,int>>>cases2;    //延迟超过一定范围
+//pair<int,int> 分别是buffersize和最开头那个的fanout 
+bool cmp2(pair<Node*,pair<int,int>>&p1,pair<Node*,pair<int,int>>&p2)
+{
+    return (p1.second.first<p2.second.first)||(p1.second.first==p2.second.first&&p1.second.second<p2.second.second);
+}
+
 bool checkfanout(DriverNode driver)
 {
     return driver.fanout+1<constraint.max_fanout;
 }
-
 bool checkrc(Node* driver,double x,double y,double xsize,double ysize)
 {
     DriverNode * p=(DriverNode*)driver;
@@ -64,47 +75,109 @@ void getorder()
         testdist(i);
     }
 }
-
-void construct(Node*tmp1,Node*tmp2)
+void add_additionnode(Node*node)
+{ //初始添加 addtionnode只有一个 没了就要迅速创造
+    Node*newnode=findgoodarea(node->x,node->y); //这是找最近的点
+    node->children.push_back(newnode);
+    newnode->parent=node;
+    additonnode=newnode;
+}
+//这里规定方向必须是tmp1到tmp2
+pair<double,double> getaverage(vector<Node*>tmp)
 {
-    double RC=rc(tmp1,tmp2);
-    //delay=2*0.69*RC/n+1 + n*bufferdelay
+    double x=0;
+    double y=0;
+    for(auto i:tmp)
+    {
+        x+=i->x;
+        y+=i->y;
+    }
+    x=x/tmp.size();
+    y=y/tmp.size();
+    return make_pair(x,y);
+}
+void construct(DriverNode*tmp1,vector<Node*>tmp2)
+{
+    double RC=0;
+    for(auto j:tmp2)
+    {
+       RC+=rc(tmp1,j);
+    }
+    RC=RC/tmp2.size();
+    //delay=0.69*RC/n+1 + n*bufferdelay
     int n=0;
-    double tmin=sqrt(2*0.69*RC*constraint.buffer_delay)/(2*0.69*2);
-    double deltax=0;
-    double deltay=0;
-    if(tmin<cfg.portion*constraint.max_net_rc)
-    {
-        n=(int)(sqrt(2*0.69*RC/constraint.buffer_delay))-1;
-    }
-    else
-    {
-        n=RC/(cfg.portion*constraint.max_net_rc);
-    }
-    deltax=(tmp2->x-tmp1->x)/(n+1);
-    deltay=(tmp2->y-tmp1->y)/(n+1);
+    n=(int)(0.69*RC/constraint.buffer_delay)-1;
+    cfg.ideal=0.69*RC/(n+1) + n*constraint.buffer_delay;
+    pair<double,double>tmp=getaverage(tmp2);
+    double deltax=(tmp.first-tmp1->x)/n;
+    double deltay=(tmp.second-tmp1->y)/n;
+    vector<Node*>children=tmp2;
     for(int i=1;i<=n;i++)
     {
-       double x=tmp1->x+i*deltax;
-       double y=tmp1->y+i*deltay;
+       double x=tmp.first-i*deltax;
+       double y=tmp.second-i*deltay;
+    //这里忽略了buffer_size的影响
     DriverNode*p=findgoodarea(x,y);
     BUF2.push_back(p);
+    //更新children
+    for(auto j:children)
+    {
+        p->children.push_back(j);
+        j->parent=p;
+    }
+    children.clear();
+    children.push_back(p);
+    p->fanout=children.size();
+    }
+    //这里肯定只有一个
+    tmp1->children.push_back(children[0]);
+    tmp1->fanout=1;
+}
+//t没什么作用，其实就是能重载函数
+bool construct(DriverNode*buf,vector<Node*>tmp2,int t)
+{
+    assert(buf->children.size()!=0);
+    if(buf->children.size()+tmp2.size()>=constraint.max_fanout)
+    {
+        return 0;
+    }
+    double RC=0; //其实大概率tmp2 size为1
+    for(auto j:tmp2)
+    {
+       RC+=rc(buf,j);
+    }
+    RC=RC/tmp2.size();
+    //delay=0.69*RC/n+1 + n*bufferdelay
+    double delay=0.69*RC;
+    double bias=cfg.ideal-(buf->delay+delay);
+    if(bias>=-constraint.buffer_delay&&bias<=0)
+    {
+          cases1.push_back(make_pair(buf,make_pair(0,buf->fanout)));
     }
 }
 //对两个block进行特殊处理
-void construct(NewBlock*block,int type)
+void construct(NewBlock*block)
 {
-    if(type==1)
+    if(BUF2.size()==0)
     {
-        
+        add_additionnode(clk); //额外的node 这是为了确保还有备用方案
+        construct((DriverNode*)clk,block->topnodes);
     }
     else
     {
-        for(auto i:BUF2)
+        bool flag=0;
+        //这里就要判断了
+        for(auto buffer:BUF2)   //按照cfg看看能不能匹配
         {
-            
+            if(construct(buffer,block->topnodes,1))
+                  flag=1;
+        }
+        if(flag==0)
+        {
+            //启用备胎
         }
     }
+    computedelay(block);
 }
 void ConstructInOrder()
 {
@@ -112,7 +185,7 @@ void ConstructInOrder()
     for(auto block:searchorder)
     {
         i++;
-        construct(block,i<=1);
+        construct(block);
     }
 }
 

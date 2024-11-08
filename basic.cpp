@@ -85,9 +85,9 @@ double ManhattonDistance(Node *tmp1,Node*tmp2)
     }
 double delay(Node*tmp1,Node*tmp2)
 {
-    return 2*0.69*constraint.net_unit_c*ManhattonDistance(tmp1,tmp2);
+    return 0.69*constraint.net_unit_c*ManhattonDistance(tmp1,tmp2);
 }
-Node* initBuffer(double x, double y){
+DriverNode* initBuffer(double x, double y){
     DriverNode* buffer=new DriverNode();
     buffer->x = x;
     buffer->y = y;
@@ -100,10 +100,11 @@ Node* initBuffer(double x, double y){
     buffer->parent = nullptr;
     buffer->children={};
     buffer->delay=0.0;
+    buffer->updelay=0;  //还没有计算delay
     buffer->cluster_id=-1;//不需要用
     buffer->block_x=static_cast<int>((x - dieArea.xmin) / dieArea2.block_width);
     buffer->block_y=static_cast<int>((y - dieArea.ymin) / dieArea2.block_height);
-    return (Node*)buffer;
+    return buffer;
 }
 void addnode(Node*node,double x,double y)
 {
@@ -133,9 +134,33 @@ void addnode(Node*node)
     addnode(node,node->width,0);
     addnode(node,node->width,node->height);
 }
+double computedelay(Node*node)
+{
+    if(node->updelay==1)
+    {
+        return node->delay;
+    }
+    else
+    {
+    node->delay=0.69*rc(node,node->parent)+computedelay(node->parent);
+    node->updelay=1;
+    return node->delay;
+    }
+}
+double computedelay(NewBlock*block)
+{
+    for(auto node:block->topnodes)
+    {
+        computedelay(node);
+    }
+}
+//TODO
 DriverNode *findgoodarea(Cluster*cluster,int block_x,int block_y,double area)
 {
 //设置了p的parent,fanout,rc等等
+//先完成一个基础版本
+DriverNode* p=initBuffer(cluster->center.x,cluster->center.y);
+p->children=cluster->members;
 }
 Node *findgoodarea(Cluster*cluster,int block_x,int block_y)
 {
@@ -143,13 +168,17 @@ Node *findgoodarea(Cluster*cluster,int block_x,int block_y)
     DriverNode*p=findgoodarea(cluster,block_x,block_y,area);
         while(p->rc>constraint.max_net_rc)
         {
+            cout<<"hhh,this is not possible"<<endl;
+            int a=cin.get();
             area+=cfg.deltaarea;
             delete p;
             p=findgoodarea(cluster,block_x,block_y,area);
         }
     return (Node*)p;
 }
+//TODO
 DriverNode *findgoodarea(double x,double y)//仅仅是搜索最近的，没有要求必须在block内部
 {
-
+       auto p=initBuffer(x,y);
+       return p;   
 }
