@@ -1,0 +1,2 @@
+*.pptx filter=lfs diff=lfs merge=lfs -text
+cts_checker filter=lfs diff=lfs merge=lfs -text
