@@ -13,7 +13,7 @@
 //这是为了选出最优的cases
 pair<double,double>getaverage(vector<Node*>tmp)
 {
-    assert(tmp.size()<=4);
+    //assert(tmp.size()<=4);
     double sum_x=0;
     double sum_y=0;
     for(auto i:tmp)
@@ -160,6 +160,7 @@ void defineprebound(NewBlock*block)
     int nmax=(int)(sqrt((delaymax/constraint.buffer_delay)))-1;
     cfg.up=max(cfg.up,min(delaymax/(nmax+1)+nmax*constraint.buffer_delay,delaymax/(nmax+1+1)+(nmax+1)*constraint.buffer_delay))+1+block->level*constraint.buffer_delay;
      COUT(cfg.up);
+     //可以在这里修改cfg.low，我尝试过cfg.low=cfg.up-10,可以基本把skew控制在20以内
     cfg.low=cfg.up-20;
     COUT(cfg.low)    ;
     //char a=cin.get();
