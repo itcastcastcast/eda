@@ -224,7 +224,7 @@ void definexy(Case* tcase,DriverNode*tmp2,Node*tmp1)
       assert(tcase->adjust==0);
       //这里就直接调节x使得符合预期
       //这里全都要用中心距离？不 幸运的是全是buf
-      double ideal=0.9*(cfg.up)+0.1*cfg.low;
+      double ideal=0.5*(cfg.up)+0.5*cfg.low;
     //计算p使得满足最后总=ideal
     double x0=tmp1->x;
     double x1=tmp2->x;

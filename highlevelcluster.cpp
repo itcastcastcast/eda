@@ -65,9 +65,9 @@ void divideIntoBlocks()
    dieArea2.ymax=dieArea.ymax;
    
     
-   dieArea2.w=12;
+   dieArea2.w=int(dieArea2.xmax/110000)+1;
    //cout<<dieArea2.w<<endl;
-   dieArea2.l=12;
+   dieArea2.l=int(dieArea2.ymax/110000)+1;
    //cout<<dieArea2.l<<endl;
    ////cout<<1<<endl;
    dieArea2.block_height=dieArea2.ymax/dieArea2.l;

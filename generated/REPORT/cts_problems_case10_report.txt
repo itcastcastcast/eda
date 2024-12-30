@@ -1,7 +1,7 @@
-Clock Global Skew: 31.6327 ps
-Average clock latency: 597.2476 ps
-Buffer Count: 3723
+Clock Global Skew: 28.413 ps
+Average clock latency: 603.8567 ps
+Buffer Count: 4002
 Out of Floorplan Inst Number: 0
-Max RC(446.569 ohm*pf): max=BUF3678(2311.21 ohm*pf), total_exceed=22107.5
-Max Fanout(65): max=BUF1324(65), total_exceed=0 (0.0%)
-Overlap Inst Number: 486, Area: 3882759/3283686000 nm*nm (0.12%)
+Max RC(446.569 ohm*pf): max=BUF3833(4189.91 ohm*pf), total_exceed=40600.54
+Max Fanout(65): max=BUF218(65), total_exceed=0 (0.0%)
+Overlap Inst Number: 645, Area: 5336656/3529764000 nm*nm (0.15%)
