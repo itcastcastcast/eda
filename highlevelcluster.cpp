@@ -295,6 +295,7 @@ void highlevelcluster()
        while(blocks2[entry.first]->clusters.size()>constraint.max_fanout)
        {
         blocks2[entry.first]->level++;
+        cout<<entry.first.first<<" "<<entry.first.second<<endl;
         cout<<"in the while"<<endl;
         cout<<blocks2[entry.first]->clusters.size()<<endl;
             //cout<<"if you get this , maybe something wrong"<<endl;

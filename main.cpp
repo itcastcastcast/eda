@@ -113,7 +113,7 @@ int main(int argc, char ** argv){
     } else {
         cout << "Some nodes are not clustered." << endl;
     }*/
-    //getorder();
+    
     
     divideIntoBlocks();
     initialbuffer1();
@@ -125,6 +125,8 @@ int main(int argc, char ** argv){
     //char b=cin.get();
     highlevelcluster();
     //cout<<"here"<<endl;
+    
+    
     ConstructInOrder();
      appendSVGNode(dieArea.xmax,dieArea.ymax,BUF1,"output.svg");
      appendSVGNode(dieArea.xmax,dieArea.ymax,BUF2,"output.svg");

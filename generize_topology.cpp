@@ -119,7 +119,8 @@ void getorder()
     cout<<dieArea2.block_width<<" "<<dieArea2.block_height<<endl;
     for(auto i:searchorder)
     {
-        testdist(i);
+        cout<<i->coordinates.first<<" "<<i->coordinates.second<<endl;
+        cout<<getcenterx(i)<<" "<<getcentery(i)<<endl;
     }
 }
 void defineprebound(NewBlock*block)
@@ -282,6 +283,7 @@ void construct(DriverNode*p)
        double y=p0->y-i*deltay;
     //这里忽略了buffer_size的影响
     DriverNode*p1=(DriverNode*)findgoodarea(x,y,{});
+    cout<<x<<" "<<y<<" "<<p1->x<<" "<<p1->y<<endl;
     COUT(p1->name);
     BUF2.push_back(p1);
     //更新children
@@ -400,11 +402,14 @@ bool construct(DriverNode*buf,DriverNode* p,int t)
 }
 
 //对两个block进行特殊处理
-void construct(NewBlock*block,int idx)
+void construct(NewBlock*block,int idx,int flag)
 {
     pair<double,double>tmp={getcenterx(block),getcentery(block)};
+    cout<<tmp.first<<" "<<tmp.second<<endl;
         DriverNode*p=(DriverNode*)findgoodarea(tmp.first,tmp.second,{});
+        cout<<p->x<<" "<<p->y<<endl;
         COUT(p->name);
+        cout<<block->level<<endl;
         for(auto i:block->topnodes)
         {
             p->children.push_back(i);
@@ -413,7 +418,7 @@ void construct(NewBlock*block,int idx)
         }
     COUT("extend");
     //保证topnodes<max_fanout
-    if(idx==1||idx==2)
+    if(idx==1||(idx==2&&flag))
     {
         //在这个过程中确定low+up
         //add_additionnode(clk); //额外的node 这是为了确保还有备用方案
@@ -464,7 +469,22 @@ void ConstructInOrder()
         cout<<i<<endl;
         cout<<block->topnodes.size()<<endl;
         cout<<"--------------------------"<<DEBUG_INFO<<endl;
-        construct(block,i);
+        int flag=0;
+        if(i==2)
+        {
+            double RC1=0.69*rc(clk->x,clk->y,getcenterx(block),getcentery(block),0.0,0.0,0.0,0.0);
+            int n=(int)(sqrt((0.69*RC1/constraint.buffer_delay)))-1;
+            if(n<0)
+            n=0;
+            if(0.69*RC1/(n+1)+n*constraint.buffer_delay>0.69*RC1/(n+1+1)+(n+1)*constraint.buffer_delay)
+            {
+                n=n+1;
+            }
+            double delay1=0.69*RC1/(n+1)+n*constraint.buffer_delay+block->level*constraint.buffer_delay;
+                if(cfg.up-delay1<4)
+            flag=1;
+        }
+        construct(block,i,flag);
     }
 }
 
