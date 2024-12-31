@@ -157,9 +157,9 @@ void defineprebound(NewBlock*block)
     cout<<"delaymax is "<<delaymax<<DEBUG_INFO<<endl;
     //delay=delay/(n+1)+n*buffer_delay
     //int nmin=(int)(sqrt((delaymin/constraint.buffer_delay)))-1;
-    //cfg.low=min(cfg.low,min(delaymin/(nmin+1)+nmin*constraint.buffer_delay,delaymin/(nmin+1+1)+(nmin+1)*constraint.buffer_delay))+block->level*constraint.buffer_delay;
+    //cfg.low=min(cfg.low,min(delaymin/(nmin+1)+nmin*constraint.buffer_delay,delaymin/(nmin+1+1)+(nmin+1)*constraint.buffer_delay)+block->level*constraint.buffer_delay);
     int nmax=(int)(sqrt((delaymax/constraint.buffer_delay)))-1;
-    cfg.up=max(cfg.up,min(delaymax/(nmax+1)+nmax*constraint.buffer_delay,delaymax/(nmax+1+1)+(nmax+1)*constraint.buffer_delay))+1+block->level*constraint.buffer_delay;
+    cfg.up=max(cfg.up,min(delaymax/(nmax+1)+nmax*constraint.buffer_delay,delaymax/(nmax+1+1)+(nmax+1)*constraint.buffer_delay)+0.2+block->level*constraint.buffer_delay);
      COUT(cfg.up);
      //可以在这里修改cfg.low，我尝试过cfg.low=cfg.up-10,可以基本把skew控制在20以内
     cfg.low=cfg.up-20;
